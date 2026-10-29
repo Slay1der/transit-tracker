@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lagos Transit Tracker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="panel">
+    <header>
+      <div class="logo">🚌</div>
+      <div>
+        <h1>Lagos Transit Tracker</h1>
+        <p class="sub">Ikorodu ⇄ CMS corridor · simulated GPS</p>
+      </div>
+    </header>
+
+    <section class="status" aria-live="polite">
+      <div class="stat"><span id="stat-buses">–</span><small>buses live</small></div>
+      <div class="stat"><span id="stat-fresh">–</span><small>last update</small></div>
+      <div class="stat"><span id="stat-state" class="dot">●</span><small id="stat-state-label">connecting</small></div>
+    </section>
+
+    <section>
+      <h2>When's my bus?</h2>
+      <label for="stop" class="visually-hidden">Choose a stop</label>
+      <select id="stop"></select>
+      <ol id="eta" class="eta"><li class="muted">Pick a stop to see arriving buses</li></ol>
+    </section>
+
+    <section class="legend">
+      <span><i class="pill to-cms"></i> to CMS</span>
+      <span><i class="pill to-ikd"></i> to Ikorodu</span>
+      <span><i class="pill stale"></i> no signal</span>
+    </section>
+
+    <footer>Positions are simulated by the worker service. <a href="#" id="api-link" target="_blank" rel="noopener">API docs</a></footer>
+  </aside>
+
+  <main id="map" aria-label="Map of buses on the Ikorodu to CMS route"></main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>

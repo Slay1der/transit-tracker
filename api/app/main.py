@@ -13,17 +13,22 @@ import time
 
 import redis
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
 
 from .route import ROUTE, STOP_KM
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 STALE_AFTER_SECONDS = float(os.getenv("STALE_AFTER_SECONDS", "30"))
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s level=%(levelname)s service=api %(message)s")
 log = logging.getLogger("api")
 
 app = FastAPI(title="Lagos Transit Tracker")
+# Lets a browser page on another address (e.g. the map opened directly) call this API.
+# Behind the web container's nginx proxy the page and API share one address, so this is not needed there.
+app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_methods=["GET"], allow_headers=["*"])
 r = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 REQUESTS = Counter("http_requests_total", "HTTP requests", ["method", "path", "status"])

@@ -4,17 +4,20 @@ A fleet of simulated buses drives the **Ikorodu → CMS** corridor. An API tells
 
 > Uses **simulated GPS**. A production version would ingest driver-phone or BRT tracking feeds.
 
+![Map preview](docs/map-preview.png)
+
 ## How it works
 ```
-worker (fake GPS) ──every 5s──▶ Redis ◀── api (FastAPI) ◀── you
-   :9100/metrics                hash  bus:<id>       :8000/metrics
+worker (fake GPS) ──every 5s──▶ Redis ◀── api (FastAPI) ◀── web (nginx: map page + /api proxy) ◀── you
+   :9100/metrics                hash  bus:<id>       :8000            :8080
                                 stream positions
 ```
 | Service | What it does | Port |
 |---|---|---|
 | `worker/` | Simulates `NUM_BUSES` buses. Every tick, each bus moves (Lagos traffic included 😅), and its position is written to Redis | 9100 (metrics) |
 | `api/` | Reads positions from Redis and serves the endpoints below | 8000 |
-| Redis | Shared state between the two | 6379 |
+| `web/` | A live map (Leaflet): buses glide along the route every 3s, plus a "when's my bus?" panel. nginx serves it and forwards `/api/*` to the api | 8080 |
+| Redis | Shared state between the worker and the api | 6379 |
 
 ## API
 | Endpoint | Returns |
@@ -34,6 +37,7 @@ worker (fake GPS) ──every 5s──▶ Redis ◀── api (FastAPI) ◀─�
 | `TICK_SECONDS` | `5` | worker |
 | `METRICS_PORT` | `9100` | worker |
 | `STALE_AFTER_SECONDS` | `30` | api: positions older than this are ignored for ETAs |
+| `CORS_ORIGINS` | `*` | api: which web pages may call it from another address (not needed behind the nginx proxy) |
 
 ## Metrics (for later blocks)
 | Metric | Service | Meaning |
@@ -54,6 +58,12 @@ cd api && pip install -r requirements.txt && uvicorn app.main:app --port 8000
 ```
 Open http://localhost:8000/docs
 
+To see the map without nginx, serve `web/` with any static server and point it at the API:
+```bash
+cd web && python -m http.server 8081
+# open http://localhost:8081/?api=http://localhost:8000
+```
+
 ## Tests
 ```bash
 cd api && pip install -r requirements-dev.txt && pytest -q
@@ -64,8 +74,8 @@ They use `fakeredis`, so no real Redis is needed. These run in CI later.
 ---
 
 ## 🛠️ Your DevOps tasks (Block by Block)
-- [ ] **Block 1, Docker:** write `api/Dockerfile` and `worker/Dockerfile`: slim, pinned, non-root, small images
-- [ ] **Block 2, Compose:** `docker-compose.yml` running redis, worker and api together, with healthchecks and `depends_on`
+- [ ] **Block 1, Docker:** write `api/Dockerfile`, `worker/Dockerfile` and `web/Dockerfile` (nginx serving the static files with `web/nginx.conf`, running non-root on 8080)
+- [ ] **Block 2, Compose:** `docker-compose.yml` running redis, worker, api and web together, with healthchecks and `depends_on`. The web container reaches the API at `http://api:8000`, so the compose service **must** be called `api`
 - [ ] **Block 3, Infra:** a Kubernetes cluster (kind locally, or EKS with Terraform)
 - [ ] **Block 4, CI:** run the tests, build, scan with Trivy, and push to GHCR on every push
 - [ ] **Block 5, CD:** deploy from CI with no stored keys
