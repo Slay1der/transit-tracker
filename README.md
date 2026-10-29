@@ -48,6 +48,15 @@ worker (fake GPS) ──every 5s──▶ Redis ◀── api (FastAPI) ◀─�
 | `http_request_duration_seconds` | api | Latency |
 | `transit_newest_position_age_seconds` | api | **Data freshness.** If this climbs, the worker has stopped |
 
+## Run everything with Docker Compose
+```bash
+docker compose up --build
+```
+- Map: http://localhost:8080
+- API docs: http://localhost:8000/docs
+
+Start-up order: redis (healthy) → worker + api (api healthy) → web. Stop with `Ctrl+C`, then `docker compose down`.
+
 ## Run without Docker (to see it work first)
 Requires Python 3.11+ and a Redis server running locally.
 ```bash
