@@ -11,7 +11,7 @@ USER appuser
 
 COPY worker.py route.py ./
 
-CMD  ["pyhton","worker.py"]
+CMD  ["python","worker.py"]
 
 
 
