@@ -74,7 +74,7 @@ They use `fakeredis`, so no real Redis is needed. These run in CI later.
 ---
 
 ## 🛠️ Your DevOps tasks (Block by Block)
-- [ ] **Block 1, Docker:** write `api/Dockerfile`, `worker/Dockerfile` and `web/Dockerfile` (nginx serving the static files with `web/nginx.conf`, running non-root on 8080)
+- [x] **Block 1, Docker:** `api/Dockerfile`, `worker/Dockerfile` and `web/Dockerfile`: pinned, slim, non-root (UID 10001 / nginx), cache-friendly layer order, `.dockerignore` keeps tests out of the images
 - [ ] **Block 2, Compose:** `docker-compose.yml` running redis, worker, api and web together, with healthchecks and `depends_on`. The web container reaches the API at `http://api:8000`, so the compose service **must** be called `api`
 - [ ] **Block 3, Infra:** a Kubernetes cluster (kind locally, or EKS with Terraform)
 - [ ] **Block 4, CI:** run the tests, build, scan with Trivy, and push to GHCR on every push
