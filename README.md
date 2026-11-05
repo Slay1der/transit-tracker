@@ -55,7 +55,9 @@ docker compose up --build
 - Map: http://localhost:8080
 - API docs: http://localhost:8000/docs
 
-Start-up order: redis (healthy) → worker + api (api healthy) → web. Stop with `Ctrl+C`, then `docker compose down`.
+Start-up order: redis (healthy) → worker + api (api healthy) → web.
+
+Network segmentation: `web` sits on `frontend` only, `redis` and `worker` on `backend` only, and `api` on both, so the public-facing nginx has no path to Redis. Stop with `Ctrl+C`, then `docker compose down`.
 
 ## Run without Docker (to see it work first)
 Requires Python 3.11+ and a Redis server running locally.
@@ -84,7 +86,7 @@ They use `fakeredis`, so no real Redis is needed. These run in CI later.
 
 ## 🛠️ Your DevOps tasks (Block by Block)
 - [x] **Block 1, Docker:** `api/Dockerfile`, `worker/Dockerfile` and `web/Dockerfile`: pinned, slim, non-root (UID 10001 / nginx), cache-friendly layer order, `.dockerignore` keeps tests out of the images
-- [ ] **Block 2, Compose:** `docker-compose.yml` running redis, worker, api and web together, with healthchecks and `depends_on`. The web container reaches the API at `http://api:8000`, so the compose service **must** be called `api`
+- [x] **Block 2, Compose:** `docker-compose.yml` running redis, worker, api and web together, with healthchecks and `depends_on`. The web container reaches the API at `http://api:8000`, so the compose service **must** be called `api`
 - [ ] **Block 3, Infra:** a Kubernetes cluster (kind locally, or EKS with Terraform)
 - [ ] **Block 4, CI:** run the tests, build, scan with Trivy, and push to GHCR on every push
 - [ ] **Block 5, CD:** deploy from CI with no stored keys

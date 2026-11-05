@@ -6,6 +6,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks: [backend]
 
   worker:
     build: ./worker
@@ -16,6 +17,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    networks: [backend]
 
   api:
     build: ./api
@@ -31,6 +33,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+    networks: [frontend, backend]
 
   web:
     build: ./web
@@ -39,3 +42,9 @@ services:
     depends_on:
       api:
         condition: service_healthy
+    networks: [frontend]
+
+# web can reach api, but not redis or worker. api is the only bridge between the two.
+networks:
+  frontend:
+  backend:
