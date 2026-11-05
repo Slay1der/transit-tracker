@@ -48,3 +48,4 @@ services:
 networks:
   frontend:
   backend:
+    internal: true   # no way out to the internet: redis and worker can't phone home
