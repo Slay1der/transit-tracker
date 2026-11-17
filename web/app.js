@@ -5,7 +5,7 @@ const API = new URLSearchParams(location.search).get("api") || "/api";
 const POLL_MS = 3000;
 
 const map = L.map("map", { zoomControl: true }).setView([6.54, 3.42], 12);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
 }).addTo(map);
